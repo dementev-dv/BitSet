@@ -1,6 +1,7 @@
 TARGET = bitarray
 CC = gcc
 CFALGS = -Wall
+CCOV = -fprofile-arcs -ftest-coverage
 
 all: $(TARGET)
 
@@ -8,10 +9,15 @@ $(TARGET): main.o $(TARGET).o
 	$(CC) main.o $(TARGET).o -o $(TARGET)
 
 %.o: %.c
-	$(CC) -c $(CFLAGS) $< -o $@
+	$(CC) -c $(CFLAGS) $< -o $@ $(CCOV)
 
-run: $(TARGET)
+test: $(TARGET).o main.o
+	$(CC) $^ -o $@ $(CCOV)
+	./test
+	gcov $(TARGET)
+
+run:
 	./$(TARGET)
 
 clean:
-	rm *.o $(TARGET)
+	rm -f *.o $(TARGET) *.gcno *.gcda test
