@@ -1,4 +1,6 @@
-#pragma once
+#ifndef BITARRAY_H
+
+#define BITARRAY_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,10 +17,6 @@ enum SIZES {
 	ELEMENT_SIZE = 64
 };
 
-enum ERRORS {
-	INVALID_POS = -1
-};
-
 typedef enum BITS {
 	SET = 1,
 	UNSET = 0
@@ -30,6 +28,8 @@ typedef struct {
 	size_t capacity;
 } bitarr_t;
 
+void *Calloc (size_t num, size_t size);
+void *Malloc (size_t size);
 void Construct (bitarr_t *bitarr, size_t capacity);
 void Reset (bitarr_t *bitarr);
 void ResizeUP (bitarr_t *bitarr, size_t extra);
@@ -37,5 +37,5 @@ void ResizeDown (bitarr_t *bitarr, size_t extra);
 int GetBit (bitarr_t *bitarr, size_t pos);
 int SetBit (bitarr_t *bitarr, size_t pos, bit_t bit);
 int FindFirstSet (bitarr_t *bitarr);
-void Dump (bitarr_t *bitarr, const char *pathname);
-char *TimeNow ();
+
+#endif // BITARRAY_H

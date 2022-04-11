@@ -1,9 +1,67 @@
 #include "bitarray.h"
 
-void Construct (bitarr_t *bitarr, size_t capacity) {
-	bitarr->array = (uint64_t *) calloc (DEFAULT_CAPACITY, sizeof (uint64_t));
+enum ERRORS {
+	INVALID_POS = -1,
+	INVALID_SIZE = -2,
+	ALLOC_ERR = -3,
+
+};
+
+
+// RELEASE // RELEASE // RELEASE // RELEASE // RELEASE // RELEASE // RELEASE // RELEASE // RELEASE // RELEASE // RELEASE // RELEASE //
+#ifdef RELEASE
+
+#undef COVER_TEST
+
+void *Calloc (size_t num, size_t size) {return calloc (num, size);}
+void *Malloc (size_t size) {return malloc (size);}
+
+#endif // RELEASE
+//-------------------------------------------------------------------------------------------------------------------------------------
+
+
+// COVERAGE TEST // COVERAGE TEST // COVERAGE TEST // COVERAGE TEST // COVERAGE TEST // COVERAGE TEST // COVERAGE TEST // COVERAGE TEST
+#ifdef COVER_TEST
+
+static int alloc_call = 0;
+
+void *Calloc (size_t num, size_t size) {
+	if (alloc_call == 5) {
+		alloc_call = 0;
+		return NULL;
+	} else {
+		alloc_call ++;
+		return calloc (num, size);
+	}
+	return NULL;
+}
+
+void *Malloc (size_t size) {
+	if (alloc_call == 5) {
+		alloc_call = 0;
+		return 0;
+	} else {
+		alloc_call ++;
+		return malloc (size);
+	}
+}
+#endif // COVER_TEST
+//-------------------------------------------------------------------------------------------------------------------------------------
+
+
+bitarr_t *Construct (size_t capacity) {
+	bitarr_t bitarr;
+	bitarr->array = (uint64_t *) calloc (capacity, sizeof (uint64_t));
 	bitarr->capacity = capacity;
 	bitarr->size = 0;
+	return bitarr;
+}
+
+void Destruct (bitarr_t bitarr) {
+	free (bitarr->array);
+	bitarr->array = NULL;
+	bitarr->size = 0;
+	bitarr->capacity = 0;
 	return;
 }
 
@@ -78,6 +136,11 @@ int FindFirstSet (bitarr_t *bitarr) {
 	return result;
 }
 
+
+// LOGS DUMP // LOGS DUMP // LOGS DUMP // LOGS DUMP // LOGS DUMP // LOGS DUMP // LOGS DUMP // LOGS DUMP // LOGS DUMP // LOGS DUMP // 
+void Dump (bitarr_t *bitarr, const char *pathname);
+char *TimeNow ();
+
 void Dump (bitarr_t *bitarr, const char *pathname) {
 	FILE *dumpfile = fopen (pathname, "w+");
 	fprintf (dumpfile, "BitArray %s\n", TimeNow ());
@@ -98,3 +161,4 @@ char *TimeNow () {
 	time_t t = time (NULL);
 	return asctime (localtime (&t));
 }
+//-------------------------------------------------------------------------------------------------------------------------------------
