@@ -2,31 +2,31 @@
 
 int main () {
 
-	bitarr_t bitarr;
-	Construct (&bitarr, 128);
-	SetBit (&bitarr, 63, SET);
-	SetBit (&bitarr, 64, SET);
-	SetBit (&bitarr, 65, SET);
-	SetBit (&bitarr, 66, SET);
-	SetBit (&bitarr, 67, SET);
-	SetBit (&bitarr, 68, SET);
-	SetBit (&bitarr, 69, SET);
-	SetBit (&bitarr, 70, SET);
-	SetBit (&bitarr, 71, SET);
-	SetBit (&bitarr, 72, SET);
-	SetBit (&bitarr, 127, SET);
-	SetBit (&bitarr, 126, SET);
-	SetBit (&bitarr, 125, SET);
-	SetBit (&bitarr, 124, SET);
-	SetBit (&bitarr, 123, SET);
-	SetBit (&bitarr, 122, SET);
-	SetBit (&bitarr, 121, SET);
-	SetBit (&bitarr, 120, SET);
-	SetBit (&bitarr, 119, SET);
+	bitarr_t *bitarr = Construct (128);
+	SetBit (bitarr, 63);
+	SetBit (bitarr, 64);
+	SetBit (bitarr, 65);
+	SetBit (bitarr, 66);
+	SetBit (bitarr, 67);
+	SetBit (bitarr, 68);
+	SetBit (bitarr, 69);
+	SetBit (bitarr, 70);
+	SetBit (bitarr, 71);
+	SetBit (bitarr, 72);
+	SetBit (bitarr, 127);
+	SetBit (bitarr, 126);
+	SetBit (bitarr, 125);
+	SetBit (bitarr, 124);
+	SetBit (bitarr, 123);
+	SetBit (bitarr, 122);
+	SetBit (bitarr, 121);
+	SetBit (bitarr, 120);
+	SetBit (bitarr, 119);
 
+	printf ("count = %d\n", Count (bitarr));
 
-	Dump (&bitarr, "dump.txt");
-	Reset (&bitarr);
+	Dump (bitarr, "dump.txt");
+	Reset (bitarr);
 
 	exit (EXIT_SUCCESS);
 }
