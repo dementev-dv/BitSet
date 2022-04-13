@@ -23,6 +23,22 @@ int main () {
 	SetBit (bitarr, 120);
 	SetBit (bitarr, 119);
 
+	SetBit (bitarr, 128);
+
+	// SetBit (bitarr, 211);
+	// UnsetBit (bitarr, 64);
+
+
+	// printf ("none = %d\n", None (bitarr));
+	// printf ("any = %d\n", Any (bitarr));
+	// SetBit (bitarr, 111);
+	// printf ("none = %d\n", None (bitarr));
+	// printf ("any = %d\n", Any (bitarr));
+
+
+	printf ("ffs = %d\n", FindFirstSet (bitarr));
+	printf ("fls = %d\n", FindLastSet (bitarr));
+	printf ("set %d = %d\n", 3, FindSetPos (bitarr, 3));
 	printf ("count = %d\n", Count (bitarr));
 
 	Dump (bitarr, "dump.txt");

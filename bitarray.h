@@ -23,7 +23,8 @@ typedef enum ERRORS {
 	INVALID_VAL = -7 | ERROR, // only 2 values are available: SET (1) and UNSET (0)
 	INVALID_BITARR = -8 | ERROR,
 	UNKNOWN_ERROR = -9 | ERROR,
-	INVALID_CONTAINER = -10 | ERROR
+	INVALID_CONTAINER = -10 | ERROR,
+	INVALID_NUM = -11 | ERROR
 } error_t;
 
 enum SIZES {
@@ -48,6 +49,9 @@ void *Realloc (void *ptr, size_t size);
 
 bitarr_t *Construct (size_t capacity);
 error_t Destruct (bitarr_t *bitarr);
+error_t All (bitarr_t *bitarr);
+error_t Any (bitarr_t *bitarr);
+error_t None (bitarr_t *bitarr);
 error_t Reset (bitarr_t *bitarr);
 error_t Set (bitarr_t *bitarr);
 error_t SetVal (bitarr_t *bitarr, bit_t bit);
@@ -58,7 +62,9 @@ int GetBit (bitarr_t *bitarr, size_t pos);
 error_t SetBit (bitarr_t *bitarr, size_t pos);
 error_t UnsetBit (bitarr_t *bitarr, size_t pos);
 error_t SetBitVal (bitarr_t *bitarr, size_t pos, bit_t bit);
+int FindLastSet (bitarr_t *bitarr);
 int FindFirstSet (bitarr_t *bitarr);
+int FindSetPos (bitarr_t *bitarr, int num);
 int Count (bitarr_t *bitarr);
 error_t Check (bitarr_t *bitarr);
 

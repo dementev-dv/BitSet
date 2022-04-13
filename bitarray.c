@@ -1,7 +1,5 @@
 #include "bitarray.h"
 
-#define COVER_TEST
-
 
 
 #ifndef COVER_TEST
@@ -100,6 +98,45 @@ error_t Destruct (bitarr_t *bitarr) {
 	return VSE_OK;
 }
 
+error_t All (bitarr_t *bitarr) {
+	error_t err = Check (bitarr);
+	if (err != VSE_OK)
+		return err;
+
+	for (ssize_t i = 0; i < bitarr->capacity / ELEMENT_SIZE; i ++) {
+		if (bitarr->array[i] != ULLONG_MAX)
+			return 0;
+	}
+
+	return 1;
+}
+
+error_t Any (bitarr_t *bitarr) {
+	error_t err = Check (bitarr);
+	if (err != VSE_OK)
+		return err;
+
+	for (ssize_t i = 0; i < bitarr->capacity / ELEMENT_SIZE; i ++) {
+		if (bitarr->array[i])
+			return 1;
+	}
+
+	return 0;
+}
+
+error_t None (bitarr_t *bitarr) {
+	error_t err = Check (bitarr);
+	if (err != VSE_OK)
+		return err;
+
+	for (ssize_t i = 0; i < bitarr->capacity / ELEMENT_SIZE; i ++) {
+		if (bitarr->array[i])
+			return 0;
+	}
+
+	return 1;
+}
+
 error_t Reset (bitarr_t *bitarr) {
 	error_t err = Check (bitarr);
 	if (err != VSE_OK)
@@ -117,7 +154,7 @@ error_t Set (bitarr_t *bitarr) {
 	if (err != VSE_OK)
 		return err;
 
-	for (ssize_t i = 0; i < bitarr->capacity; i ++) {
+	for (ssize_t i = 0; i < bitarr->capacity / ELEMENT_SIZE; i ++) {
 		bitarr->array[i] = ULLONG_MAX;
 	}
 
@@ -158,12 +195,15 @@ error_t ResizeUP (bitarr_t *bitarr, size_t extra) {
 	if (err != VSE_OK)
 		return err;
 
-	void *ptr = Realloc (bitarr->array, (bitarr->capacity + extra) / ELEMENT_SIZE + 1);
+	size_t newsize = (bitarr->capacity + extra) / ELEMENT_SIZE + 1;
+	printf ("newsize = %ld\n", newsize);
+
+	void *ptr = Realloc (bitarr->array, newsize);
 	if (ptr == NULL) 
 		return ALLOC_ERR;
 
 	bitarr->array = (uint64_t *) ptr;
-	bitarr->capacity += (extra / ELEMENT_SIZE + 1) * ELEMENT_SIZE;
+	bitarr->capacity = newsize * ELEMENT_SIZE;
 
 	return VSE_OK;
 }
@@ -206,6 +246,10 @@ error_t SetBit (bitarr_t *bitarr, size_t pos) {
 	if (err != VSE_OK)
 		return err;
 
+	if (pos >= bitarr->capacity) {
+		ResizeUP (bitarr, pos - bitarr->capacity);
+	}
+
 	uint64_t *point = bitarr->array + pos / ELEMENT_SIZE; 
 	uint64_t mask = 1;
 	mask = mask << (pos % ELEMENT_SIZE);
@@ -222,6 +266,11 @@ error_t UnsetBit (bitarr_t *bitarr, size_t pos) {
 	error_t err = Check (bitarr);
 	if (err != VSE_OK)
 		return err;
+
+	if (pos >= bitarr->capacity) {
+		ResizeUP (bitarr, pos - bitarr->capacity);
+		return VSE_OK;
+	}
 
 	uint64_t *point = bitarr->array + pos / ELEMENT_SIZE; 
 	uint64_t mask = 1;
@@ -241,10 +290,6 @@ error_t SetBitVal (bitarr_t *bitarr, size_t pos, bit_t bit) {
 	if (err != VSE_OK)
 		return err;
 
-	if (pos >= bitarr->capacity) {
-		ResizeUP (bitarr, pos - bitarr->capacity);
-	}
-
 	switch (bit) {
 		case SET:
 			return SetBit (bitarr, pos);
@@ -257,6 +302,54 @@ error_t SetBitVal (bitarr_t *bitarr, size_t pos, bit_t bit) {
 	return UNKNOWN_ERROR;
 }
 
+int Count (bitarr_t *bitarr) {
+	error_t err = Check (bitarr);
+	if (err != VSE_OK)
+		return err;	int result = 0;
+
+	for (size_t i = 0; i < bitarr->capacity / ELEMENT_SIZE; i ++) {
+		if (!bitarr->array[i])
+			continue;
+
+		for (ssize_t offset = 0; offset < ELEMENT_SIZE; offset ++) {
+			if (bitarr->array[i] & ((uint64_t) 1 << offset)) {
+				result ++;
+			}
+		}
+	}
+
+	return result;
+}
+
+int FindSetPos (bitarr_t *bitarr, int num) {
+	if (num < 1)
+		return INVALID_NUM;
+
+	error_t err = Check (bitarr);
+	if (err != VSE_OK)
+		return err;
+
+	int pos = 0;
+	int count = 0;
+
+	for (ssize_t i = 0; i < bitarr->capacity / ELEMENT_SIZE; i ++) {
+		if (!bitarr->array[i])
+			continue;
+
+		for (ssize_t offset = 0; offset < ELEMENT_SIZE; offset ++) {
+			if (bitarr->array[i] & ((uint64_t) 1 << offset))
+				count ++;
+			
+			if (count == num)
+				return pos + offset;
+		}
+
+		pos += ELEMENT_SIZE;
+	}
+
+	return -1;
+}
+
 int FindFirstSet (bitarr_t *bitarr) {
 	error_t err = Check (bitarr);
 	if (err != VSE_OK)
@@ -264,7 +357,8 @@ int FindFirstSet (bitarr_t *bitarr) {
 
 	int result = 0;
 	size_t i = 0;
-	for (i = 0; i < bitarr->capacity / ELEMENT_SIZE - 1; i++) {
+
+	for (i = 0; i <= bitarr->capacity / ELEMENT_SIZE - 1; i ++) {
 		if (bitarr->array[i])
 			break;
 		result += ELEMENT_SIZE;
@@ -275,7 +369,7 @@ int FindFirstSet (bitarr_t *bitarr) {
 
 	uint64_t current = bitarr->array[i];
 	
-	for (int offset = 0; offset < ELEMENT_SIZE; offset++) {
+	for (size_t offset = 0; offset < ELEMENT_SIZE; offset ++) {
 		if (current & ((uint64_t) 1 << offset))
 			break;
 		result++;
@@ -284,23 +378,28 @@ int FindFirstSet (bitarr_t *bitarr) {
 	return result;
 }
 
-int Count (bitarr_t *bitarr) {
+int FindLastSet (bitarr_t *bitarr) {
 	error_t err = Check (bitarr);
 	if (err != VSE_OK)
 		return err;
 
-	ssize_t i = 0;
-	int result = 0;
+	int result = bitarr->capacity - 1;
+	size_t i = 0;
+	for (i = bitarr->capacity / ELEMENT_SIZE - 1; i >= 0; i --) {
+		if (bitarr->array[i])
+			break;
+		result -= ELEMENT_SIZE;
+	}
 
-	for (i = 0; i < bitarr->capacity / ELEMENT_SIZE; i++) {
-		if (!bitarr->array[i])
-			continue;
+	if (result == -1)
+		return -1;
 
-		for (ssize_t offset = 0; offset < ELEMENT_SIZE; offset ++) {
-			if (bitarr->array[i] & ((uint64_t) 1 << offset)) {
-				result ++;
-			}
-		}
+	uint64_t current = bitarr->array[i];
+	
+	for (size_t offset = ELEMENT_SIZE - 1; offset >= 0; offset --) {
+		if (current & ((uint64_t) 1 << offset))
+			break;
+		result --;
 	}
 
 	return result;
@@ -319,8 +418,8 @@ error_t Check (bitarr_t *bitarr) {
 	return VSE_OK;
 }
 
-// LOGS DUMP // LOGS DUMP // LOGS DUMP // LOGS DUMP // LOGS DUMP // LOGS DUMP // LOGS DUMP // LOGS DUMP // LOGS DUMP // LOGS DUMP // 
 
+// LOGS DUMP // LOGS DUMP // LOGS DUMP // LOGS DUMP // LOGS DUMP // LOGS DUMP // LOGS DUMP // LOGS DUMP // LOGS DUMP // LOGS DUMP // 
 void Dump (bitarr_t *bitarr, const char *pathname) {
 	FILE *dumpfile = fopen (pathname, "w+");
 	fprintf (dumpfile, "BitArray %s\n", TimeNow ());
