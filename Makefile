@@ -7,6 +7,8 @@ TEST = test
 DIR = report
 
 
+.PHONY: $(TARGET)
+
 $(TARGET): main.o $(TARGET).o
 	$(CC) main.o $(TARGET).o -o $(TARGET)
 
@@ -23,8 +25,11 @@ $(TEST): $(TARGET).o_test main.o
 	lcov -t "$@" -o $(TARGET).info -c -d .
 	genhtml -o $(DIR) $(TARGET).info
 
-run:
+run: $(TARGET)
 	./$(TARGET)
+
+check: $(TARGET)
+	valgrind ./$(TARGET)
 
 clean: clean_regular clean_test
 
