@@ -350,6 +350,36 @@ int FindSetPos (bitarr_t *bitarr, int num) {
 	return -1;
 }
 
+int FindUnsetPos (bitarr_t *bitarr, int num) {
+	if (num < 1)
+		return INVALID_NUM;
+
+	error_t err = Check (bitarr);
+	if (err != VSE_OK)
+		return err;
+
+	int pos = 0;
+	int count = 0;
+
+	for (ssize_t i = 0; i < bitarr->capacity / ELEMENT_SIZE; i ++) {
+		if (!bitarr->array[i])
+			continue;
+
+		for (ssize_t offset = 0; offset < ELEMENT_SIZE; offset ++) {
+			if (!(bitarr->array[i] & ((uint64_t) 1 << offset))) {
+				count ++;
+			}
+			
+			if (count == num)
+				return pos + offset;
+		}
+
+		pos += ELEMENT_SIZE;
+	}
+
+	return -1;
+}
+
 int FindFirstSet (bitarr_t *bitarr) {
 	error_t err = Check (bitarr);
 	if (err != VSE_OK)
@@ -372,7 +402,35 @@ int FindFirstSet (bitarr_t *bitarr) {
 	for (size_t offset = 0; offset < ELEMENT_SIZE; offset ++) {
 		if (current & ((uint64_t) 1 << offset))
 			break;
-		result++;
+		result ++;
+	}
+
+	return result;
+}
+
+int FindFirstUnset (bitarr_t *bitarr) {
+	error_t err = Check (bitarr);
+	if (err != VSE_OK)
+		return err;
+
+	int result = 0;
+	size_t i = 0;
+
+	for (i = 0; i <= bitarr->capacity / ELEMENT_SIZE; i ++) {
+		if (bitarr->array[i] != ULLONG_MAX)
+			break;
+		result += ELEMENT_SIZE;
+	}
+
+	if (result == bitarr->capacity)
+		return -1;
+
+	uint64_t current = bitarr->array[i];
+
+	for (size_t offset = 0; offset < ELEMENT_SIZE; offset ++) {
+		if (!(current & (uint64_t) 1 << offset))
+			break;
+		result ++;
 	}
 
 	return result;
@@ -385,19 +443,48 @@ int FindLastSet (bitarr_t *bitarr) {
 
 	int result = bitarr->capacity - 1;
 	size_t i = 0;
+
 	for (i = bitarr->capacity / ELEMENT_SIZE - 1; i >= 0; i --) {
 		if (bitarr->array[i])
 			break;
 		result -= ELEMENT_SIZE;
 	}
 
-	if (result == -1)
+	if (result < 0)
 		return -1;
 
 	uint64_t current = bitarr->array[i];
 	
 	for (size_t offset = ELEMENT_SIZE - 1; offset >= 0; offset --) {
 		if (current & ((uint64_t) 1 << offset))
+			break;
+		result --;
+	}
+
+	return result;
+}
+
+int FindLastUnset (bitarr_t * bitarr) {
+	error_t err = Check (bitarr);
+	if (err != VSE_OK)
+		return err;
+
+	int result = bitarr->capacity - 1;
+	size_t i = 0;
+
+	for (i = bitarr->capacity / ELEMENT_SIZE - 1; i >= 0; i --) {
+		if (bitarr->array[i] != ULLONG_MAX)
+			break;
+		result -= ELEMENT_SIZE;
+	}
+
+	if (result < 0)
+		return -1;
+
+	uint64_t current = bitarr->array[i];
+
+	for (size_t offset = ELEMENT_SIZE - 1; offset >= 0; offset --) {
+		if (!(current & ((uint64_t) 1 << offset)))
 			break;
 		result --;
 	}

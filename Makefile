@@ -3,8 +3,9 @@ CC = gcc
 CFALGS = -Wall
 #CCOV = -fprofile-arcs -ftest-coverage
 CCOV = --coverage
+TEST = test
+DIR = report
 
-all: $(TARGET)
 
 $(TARGET): main.o $(TARGET).o
 	$(CC) main.o $(TARGET).o -o $(TARGET)
@@ -13,15 +14,23 @@ $(TARGET): main.o $(TARGET).o
 	$(CC) -c $(CFLAGS) $< -o $@
 
 %.o_test: %.c %.h
-	$(CC) -c $(CFLAGS) $< -o $@ $(CCOV)
+	$(CC) $(CCOV) -c $(CFLAGS) $< -o $@
 
-test: $(TARGET).o_test main.o
-	$(CC) $^ -o $@ $(CCOV)
-	./test
-	gcov $(TARGET)
+$(TEST): $(TARGET).o_test main.o
+	$(CC) $(CCOV) $^ -o $@
+	./$(TEST)
+	#gcov $@
+	lcov -t "$@" -o $(TARGET).info -c -d .
+	genhtml -o $(DIR) $(TARGET).info
 
 run:
 	./$(TARGET)
 
-clean:
+clean: clean_regular clean_test
+
+clean_regular:
 	rm -f *.o $(TARGET) *.gcno *.gcda test *.o_test
+	
+clean_test:
+	rm -f *.gcno *.gcda $(TEST) *.o_test *.info *.gcov
+	rm -rf $(DIR)

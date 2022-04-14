@@ -12,19 +12,19 @@
 #include <limits.h>
 
 typedef enum ERRORS {
-	ERROR = 1 << 5,
-	VSE_OK = 0 | ERROR,
-	INVALID_POS = -1 | ERROR,
-	INVALID_SIZE = -2 | ERROR,
-	ALLOC_ERR = -3 | ERROR,
-	INVALID_ARRAY = -4 | ERROR,
-	REALLOC_ERROR = -5 | ERROR,
-	INVALID_CAPACITY = -6 | ERROR,	// extra for resize is considered here too
-	INVALID_VAL = -7 | ERROR, // only 2 values are available: SET (1) and UNSET (0)
-	INVALID_BITARR = -8 | ERROR,
-	UNKNOWN_ERROR = -9 | ERROR,
-	INVALID_CONTAINER = -10 | ERROR,
-	INVALID_NUM = -11 | ERROR
+	VSE_OK = 0,
+	NO_MATCH = -1,
+	INVALID_SIZE = -2,
+	ALLOC_ERR = -3,
+	INVALID_ARRAY = -4,
+	REALLOC_ERROR = -5,
+	INVALID_CAPACITY = -6,	// extra for resize is considered here too
+	INVALID_VAL = -7, // only 2 values are available: SET (1) and UNSET (0)
+	INVALID_BITARR = -8,
+	UNKNOWN_ERROR = -9,
+	INVALID_CONTAINER = -10,
+	INVALID_NUM = -11,
+	INVALID_POS = -12
 } error_t;
 
 enum SIZES {
@@ -63,8 +63,11 @@ error_t SetBit (bitarr_t *bitarr, size_t pos);
 error_t UnsetBit (bitarr_t *bitarr, size_t pos);
 error_t SetBitVal (bitarr_t *bitarr, size_t pos, bit_t bit);
 int FindLastSet (bitarr_t *bitarr);
+int FindFirstUnset (bitarr_t *btarr);
 int FindFirstSet (bitarr_t *bitarr);
+int FindLastUnset (bitarr_t * array);
 int FindSetPos (bitarr_t *bitarr, int num);
+int FindUnsetPos (bitarr_t *bitarr, int num);
 int Count (bitarr_t *bitarr);
 error_t Check (bitarr_t *bitarr);
 
