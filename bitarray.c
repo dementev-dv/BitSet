@@ -183,7 +183,7 @@ error_t Flip (bitarr_t *bitarr) {
 	if (err != VSE_OK)
 		return err;
 
-	for (ssize_t i = 0; i < bitarr->capacity; i ++) {
+	for (ssize_t i = 0; i < bitarr->capacity / ELEMENT_SIZE; i ++) {
 		bitarr->array[i] = ~bitarr->array[i];
 	}
 
