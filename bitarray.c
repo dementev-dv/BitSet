@@ -266,7 +266,7 @@ error_t SetBit (bitarr_t *bitarr, int pos) {
 		return err;
 
 	if (pos >= bitarr->capacity) {
-		ResizeUp (bitarr, pos - bitarr->capacity);
+		ResizeUp (bitarr, pos - bitarr->capacity + 1);
 	}
 
 	uint64_t *point = bitarr->array + pos / ELEMENT_SIZE; 
@@ -287,7 +287,7 @@ error_t UnsetBit (bitarr_t *bitarr, int pos) {
 		return err;
 
 	if (pos >= bitarr->capacity) {
-		ResizeUp (bitarr, pos - bitarr->capacity);
+		ResizeUp (bitarr, pos - bitarr->capacity + 1);
 		return VSE_OK;
 	}
 
@@ -383,7 +383,7 @@ int FindUnsetPos (bitarr_t *bitarr, int num) {
 	int count = 0;
 
 	for (ssize_t i = 0; i < bitarr->capacity / ELEMENT_SIZE; i ++) {
-		if (!bitarr->array[i])
+		if (bitarr->array[i] == ULLONG_MAX)
 			continue;
 
 		for (ssize_t offset = 0; offset < ELEMENT_SIZE; offset ++) {
