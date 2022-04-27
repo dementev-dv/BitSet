@@ -34,7 +34,7 @@ check: $(TARGET)
 clean: clean_regular clean_test
 
 clean_regular:
-	rm -f *.o $(TARGET) *.gcno *.gcda test *.o_test
+	rm -f *.o $(TARGET)
 	
 clean_test:
 	rm -f *.gcno *.gcda $(TEST) *.o_test *.info *.gcov

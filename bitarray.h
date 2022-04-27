@@ -47,7 +47,8 @@ void *Calloc (size_t num, size_t size);
 void *Malloc (size_t size);
 void *Realloc (void *ptr, size_t size);
 
-bitarr_t *Construct (size_t capacity);
+bitarr_t *Bitarr (int capacity);
+bitarr_t *Construct (int capacity);
 error_t Destruct (bitarr_t *bitarr);
 error_t All (bitarr_t *bitarr);
 error_t Any (bitarr_t *bitarr);
@@ -56,12 +57,12 @@ error_t Reset (bitarr_t *bitarr);
 error_t Set (bitarr_t *bitarr);
 error_t SetVal (bitarr_t *bitarr, bit_t bit);
 error_t Flip (bitarr_t *bitarr);
-error_t ResizeUP (bitarr_t *bitarr, size_t extra);
-error_t ResizeDown (bitarr_t *bitarr, size_t extra);
-int GetBit (bitarr_t *bitarr, size_t pos);
-error_t SetBit (bitarr_t *bitarr, size_t pos);
-error_t UnsetBit (bitarr_t *bitarr, size_t pos);
-error_t SetBitVal (bitarr_t *bitarr, size_t pos, bit_t bit);
+error_t ResizeUp (bitarr_t *bitarr, int extra);
+error_t ResizeDown (bitarr_t *bitarr, int extra);
+int GetBit (bitarr_t *bitarr, int pos);
+error_t SetBit (bitarr_t *bitarr, int pos);
+error_t UnsetBit (bitarr_t *bitarr, int pos);
+error_t SetBitVal (bitarr_t *bitarr, int pos, bit_t bit);
 int FindLastSet (bitarr_t *bitarr);
 int FindFirstUnset (bitarr_t *btarr);
 int FindFirstSet (bitarr_t *bitarr);
@@ -71,7 +72,8 @@ int FindUnsetPos (bitarr_t *bitarr, int num);
 int Count (bitarr_t *bitarr);
 error_t Check (bitarr_t *bitarr);
 
-void Dump (bitarr_t *bitarr, const char *pathname);
+error_t Dump (bitarr_t *bitarr, const char *pathname);
 char *TimeNow ();
+size_t Capacity (bitarr_t *bitarr);
 
 #endif // BITARRAY_H

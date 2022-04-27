@@ -1,6 +1,6 @@
 #include "bitarray.h"
 
-
+#define COVER_TEST
 
 #ifndef COVER_TEST
 #define RELEASE
@@ -36,17 +36,17 @@ void *Calloc (size_t num, size_t size) {
 	return NULL;
 }
 
-void *Malloc (size_t size) {
-	if (alloc_call == 5) {
-		alloc_call = 0;
-		return 0;
-	} else {
-		alloc_call ++;
-		return malloc (size);
-	}
+// void *Malloc (size_t size) {
+// 	if (alloc_call == 5) {
+// 		alloc_call = 0;
+// 		return 0;
+// 	} else {
+// 		alloc_call ++;
+// 		return malloc (size);
+// 	}
 
-	return NULL;
-}
+// 	return NULL;
+// }
 
 void *Realloc (void *ptr, size_t size) {
 	if (alloc_call == 5) {
@@ -63,7 +63,16 @@ void *Realloc (void *ptr, size_t size) {
 //-------------------------------------------------------------------------------------------------------------------------------------
 
 
-bitarr_t *Construct (size_t capacity) {
+bitarr_t *Bitarr (int capacity) {
+	bitarr_t *set = Construct (capacity);
+	if (Check (set) != VSE_OK) {
+		Destruct (set);
+		set = Construct (capacity);
+	}
+	return set;
+}
+
+bitarr_t *Construct (int capacity) {
 	if (capacity < 1)
 		return NULL;
 
@@ -73,7 +82,7 @@ bitarr_t *Construct (size_t capacity) {
 	bitarr_t *bitarr = (bitarr_t *) container;
 
 	size_t num = 0;
-	if (capacity / ELEMENT_SIZE == 0)
+	if (capacity % ELEMENT_SIZE == 0)
 		num = capacity / ELEMENT_SIZE;
 	else
 		num = capacity / ELEMENT_SIZE + 1;
@@ -84,12 +93,20 @@ bitarr_t *Construct (size_t capacity) {
 		return NULL;
 	}
 	bitarr->array = (uint64_t *) arr;
-	bitarr->capacity = capacity;
+	bitarr->capacity = num * ELEMENT_SIZE;
 
 	return bitarr;
 }
 
 error_t Destruct (bitarr_t *bitarr) {
+	if (bitarr == NULL)
+		return INVALID_CONTAINER;
+
+	if (bitarr->array == NULL) {
+		free (bitarr);
+		return INVALID_ARRAY;
+	}
+
 	free (bitarr->array);
 	bitarr->array = NULL;
 	bitarr->capacity = 0;
@@ -190,15 +207,17 @@ error_t Flip (bitarr_t *bitarr) {
 	return VSE_OK;
 }
 
-error_t ResizeUP (bitarr_t *bitarr, size_t extra) {
+error_t ResizeUp (bitarr_t *bitarr, int extra) {
+	if (extra < 1)
+		return INVALID_CAPACITY;
+
 	error_t err = Check (bitarr);
 	if (err != VSE_OK)
 		return err;
 
 	size_t newsize = (bitarr->capacity + extra) / ELEMENT_SIZE + 1;
-	printf ("newsize = %ld\n", newsize);
 
-	void *ptr = Realloc (bitarr->array, newsize);
+	void *ptr = Realloc (bitarr->array, newsize * sizeof (uint64_t));
 	if (ptr == NULL) 
 		return ALLOC_ERR;
 
@@ -208,14 +227,14 @@ error_t ResizeUP (bitarr_t *bitarr, size_t extra) {
 	return VSE_OK;
 }
 
-error_t ResizeDown (bitarr_t *bitarr, size_t extra) {
-	bitarr->array = (uint64_t *) Realloc (bitarr->array, (bitarr->capacity - extra) / ELEMENT_SIZE + 1);
-	bitarr->capacity -= extra;
+// error_t ResizeDown (bitarr_t *bitarr, size_t extra) {
+// 	bitarr->array = (uint64_t *) Realloc (bitarr->array, (bitarr->capacity - extra) / ELEMENT_SIZE + 1);
+// 	bitarr->capacity -= extra;
 
-	return VSE_OK;
-}
+// 	return VSE_OK;
+// }
 
-int GetBit (bitarr_t *bitarr, size_t pos) {
+int GetBit (bitarr_t *bitarr, int pos) {
 	if (pos < 0)
 		return INVALID_POS;
 
@@ -224,7 +243,7 @@ int GetBit (bitarr_t *bitarr, size_t pos) {
 		return err;
 
 	if (pos >= bitarr->capacity) {
-		error_t err = ResizeUP (bitarr, pos - bitarr->capacity);
+		error_t err = ResizeUp (bitarr, pos - bitarr->capacity);
 		if (err == VSE_OK)
 			return UNSET;
 		return err;
@@ -238,7 +257,7 @@ int GetBit (bitarr_t *bitarr, size_t pos) {
 	return UNSET;
 }
 
-error_t SetBit (bitarr_t *bitarr, size_t pos) {
+error_t SetBit (bitarr_t *bitarr, int pos) {
 	if (pos < 0)
 		return INVALID_POS;
 
@@ -247,7 +266,7 @@ error_t SetBit (bitarr_t *bitarr, size_t pos) {
 		return err;
 
 	if (pos >= bitarr->capacity) {
-		ResizeUP (bitarr, pos - bitarr->capacity);
+		ResizeUp (bitarr, pos - bitarr->capacity);
 	}
 
 	uint64_t *point = bitarr->array + pos / ELEMENT_SIZE; 
@@ -259,7 +278,7 @@ error_t SetBit (bitarr_t *bitarr, size_t pos) {
 	return VSE_OK;
 }
 
-error_t UnsetBit (bitarr_t *bitarr, size_t pos) {
+error_t UnsetBit (bitarr_t *bitarr, int pos) {
 	if (pos < 0)
 		return INVALID_POS;
 
@@ -268,7 +287,7 @@ error_t UnsetBit (bitarr_t *bitarr, size_t pos) {
 		return err;
 
 	if (pos >= bitarr->capacity) {
-		ResizeUP (bitarr, pos - bitarr->capacity);
+		ResizeUp (bitarr, pos - bitarr->capacity);
 		return VSE_OK;
 	}
 
@@ -282,7 +301,7 @@ error_t UnsetBit (bitarr_t *bitarr, size_t pos) {
 	return VSE_OK;
 }
 
-error_t SetBitVal (bitarr_t *bitarr, size_t pos, bit_t bit) {
+error_t SetBitVal (bitarr_t *bitarr, int pos, bit_t bit) {
 	if (pos < 0)
 		return INVALID_POS;
 
@@ -305,7 +324,9 @@ error_t SetBitVal (bitarr_t *bitarr, size_t pos, bit_t bit) {
 int Count (bitarr_t *bitarr) {
 	error_t err = Check (bitarr);
 	if (err != VSE_OK)
-		return err;	int result = 0;
+		return err;
+
+	int result = 0;
 
 	for (size_t i = 0; i < bitarr->capacity / ELEMENT_SIZE; i ++) {
 		if (!bitarr->array[i])
@@ -507,7 +528,10 @@ error_t Check (bitarr_t *bitarr) {
 
 
 // LOGS DUMP // LOGS DUMP // LOGS DUMP // LOGS DUMP // LOGS DUMP // LOGS DUMP // LOGS DUMP // LOGS DUMP // LOGS DUMP // LOGS DUMP // 
-void Dump (bitarr_t *bitarr, const char *pathname) {
+error_t Dump (bitarr_t *bitarr, const char *pathname) {
+	error_t err = Check (bitarr);
+	if (err != VSE_OK)
+		return err;
 	FILE *dumpfile = fopen (pathname, "w+");
 	fprintf (dumpfile, "BitArray %s\n", TimeNow ());
 	uint64_t mask = 1;
@@ -520,11 +544,19 @@ void Dump (bitarr_t *bitarr, const char *pathname) {
 		}
 		fprintf (dumpfile, "\n");
 	}
-	return;
+	return VSE_OK;
 }
 
 char *TimeNow () {
 	time_t t = time (NULL);
 	return asctime (localtime (&t));
+}
+
+size_t Capacity (bitarr_t *bitarr) {
+	error_t err = Check (bitarr);
+	if (err != VSE_OK)
+		return 0;
+
+	return bitarr->capacity;
 }
 //-------------------------------------------------------------------------------------------------------------------------------------
