@@ -52,7 +52,7 @@ void CheckTest ();
 
 The resulting coverage is 97%, you can see it, by using "make test". This make rule will generate html report in "report dir"
 
-[coverage](https://github.com/krutoi-muzhik/BitSet/blob/main/img/coverage.png)
+![coverage](https://github.com/krutoi-muzhik/BitSet/blob/main/img/coverage.png)
 
 # Implementation
 
