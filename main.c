@@ -302,11 +302,13 @@ void CheckTest () {
 	bitarr_t *set1 = Bitarr (128);
 	set1->capacity = -1;
 	Check (set1);
+	Destruct (set1);
 
 	bitarr_t *set2 = Bitarr (128);
 	free (set2->array);
 	set2->array = NULL;
 	Check (set2);
+	Destruct (set2);
 
 	Check (NULL);
 
