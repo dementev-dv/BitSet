@@ -6,6 +6,7 @@ CCOV = --coverage
 TEST = test
 DIR = report
 
+# ya dima ya dima
 
 .PHONY: $(TARGET)
 
