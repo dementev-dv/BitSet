@@ -28,7 +28,7 @@ $(TEST): $(TARGET).o_test main.o
 run: $(TARGET)
 	./$(TARGET)
 
-check: $(TEST)
+mem_check: $(TEST)
 	valgrind ./$(TEST)
 
 clean: clean_regular clean_test
