@@ -48,7 +48,6 @@ void *Malloc (size_t size);
 void *Realloc (void *ptr, size_t size);
 
 bitarr_t *Bitarr (int capacity);
-bitarr_t *Construct (int capacity);
 error_t Destruct (bitarr_t *bitarr);
 error_t All (bitarr_t *bitarr);
 error_t Any (bitarr_t *bitarr);
