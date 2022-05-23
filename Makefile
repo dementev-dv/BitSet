@@ -4,14 +4,15 @@ CFALGS = -Wall
 #CCOV = -fprofile-arcs -ftest-coverage
 CCOV = --coverage
 TEST = test
-DIR = report
+DIR = report 
 
-# ya dima ya dima
-
-.PHONY: $(TARGET)
+.PHONY: test
 
 $(TARGET): main.o $(TARGET).o
 	$(CC) main.o $(TARGET).o -o $(TARGET)
+
+main.o: main.c $(TARGET).h
+	$(CC) -c $(CFLAGS) $< -o $@
 
 %.o: %.c %.h
 	$(CC) -c $(CFLAGS) $< -o $@
@@ -19,17 +20,17 @@ $(TARGET): main.o $(TARGET).o
 %.o_test: %.c %.h
 	$(CC) $(CCOV) -c $(CFLAGS) $< -o $@
 
-$(TEST): $(TARGET).o_test main.o
-	$(CC) $(CCOV) $^ -o $@
+test: $(TARGET).o_test main.o
+	$(CC) $(CCOV) $^ -o $(TEST)
 	./$(TEST)
 	#gcov $@
-	lcov -t "$@" -o $(TARGET).info -c -d .
+	lcov -t "$(TEST)" -o $(TARGET).info -c -d .
 	genhtml -o $(DIR) $(TARGET).info
 
 run: $(TARGET)
 	./$(TARGET)
 
-mem_check: $(TEST)
+mem_check:
 	valgrind ./$(TEST)
 
 clean: clean_regular clean_test

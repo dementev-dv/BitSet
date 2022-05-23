@@ -44,10 +44,10 @@ void ErrorTest () {
 	SetBit (bitarr, 10);
 	UnsetBit (bitarr, 6);
 	SetBitVal (bitarr, 3, SET);
-	FindLastSet (bitarr);
-	FindFirstUnset (bitarr);
-	FindFirstSet (bitarr);
-	FindLastUnset (bitarr);
+	// FindLastSet (bitarr);
+	// FindFirstUnset (bitarr);
+	FindFirstSet (bitarr, 4);
+	// FindLastUnset (bitarr);
 	FindSetPos (bitarr, 15);
 	FindUnsetPos (bitarr, 3);
 	Count (bitarr);
@@ -185,81 +185,83 @@ void FindTest () {
 
 	Reset (bitarr);
 
-	if (FindLastSet (bitarr) != -1) {
+	error_t err;
+
+	// if (FindLastSet (bitarr) != -1) {
+	// 	Destruct (bitarr);
+	// 	printf ("find tests not passed (fls 1 error)\n");
+	// 	return;
+	// }
+	// if (FindFirstUnset (bitarr) != 0) {
+	// 	Destruct (bitarr);
+	// 	printf ("find tests not passed (ffu 1 error)\n");
+	// 	return;
+	// }
+	if (err = FindFirstSet (bitarr, 2) != -1) {
 		Destruct (bitarr);
-		printf ("find tests not passed (fls 1 error)\n");
-		return;
-	}
-	if (FindFirstUnset (bitarr) != 0) {
-		Destruct (bitarr);
-		printf ("find tests not passed (ffu 1 error)\n");
-		return;
-	}
-	if (FindFirstSet (bitarr) != -1) {
-		Destruct (bitarr);
-		printf ("find tests not passed (ffs 1 error)\n");
+		printf ("find tests not passed (ffs 1 error) %d\n", err);
 		return;		
 	}
-	if (FindLastUnset (bitarr) != Capacity (bitarr) - 1) {
-		Destruct (bitarr);
-		printf ("find tests not passed (flu 1 error)\n");
-		return;
-	}
-	if (FindSetPos (bitarr, 3) != -1) {
-		Destruct (bitarr);
-		printf ("find tests not passed (fsp 1 error)\n");
-		return;
-	}
-	if (FindUnsetPos (bitarr, 2) != 1) {
-		Destruct (bitarr);
-		printf ("find tests not passed (fup 1 error)\n");
-		return;
-	}
+	// if (FindLastUnset (bitarr) != Capacity (bitarr) - 1) {
+	// 	Destruct (bitarr);
+	// 	printf ("find tests not passed (flu 1 error)\n");
+	// 	return;
+	// }
+	// if (FindSetPos (bitarr, 3) != -1) {
+	// 	Destruct (bitarr);
+	// 	printf ("find tests not passed (fsp 1 error)\n");
+	// 	return;
+	// }
+	// if (FindUnsetPos (bitarr, 2) != 1) {
+	// 	Destruct (bitarr);
+	// 	printf ("find tests not passed (fup 1 error)\n");
+	// 	return;
+	// }
 	
 	Set (bitarr);
 
-	if (FindLastSet (bitarr) != Capacity (bitarr) - 1) {
-		Destruct (bitarr);
-		printf ("find tests not passed (fls 2 error)\n");
-		return;
-	}
-	if (FindFirstUnset (bitarr) != -1) {
-		Destruct (bitarr);
-		printf ("find tests not passed (ffu 2 error)\n");
-		return;
-	}
-	if (FindFirstSet (bitarr) != 0) {
+	// if (FindLastSet (bitarr) != Capacity (bitarr) - 1) {
+	// 	Destruct (bitarr);
+	// 	printf ("find tests not passed (fls 2 error)\n");
+	// 	return;
+	// }
+	// if (FindFirstUnset (bitarr) != -1) {
+	// 	Destruct (bitarr);
+	// 	printf ("find tests not passed (ffu 2 error)\n");
+	// 	return;
+	// }
+	if (FindFirstSet (bitarr, 1) != 1) {
 		Destruct (bitarr);
 		printf ("find tests not passed (ffs 2 error)\n");
 		return;
 	}
-	if (FindLastUnset (bitarr) != -1) {
-		Destruct (bitarr);
-		printf ("find tests not passed (flu 2 error)\n");
-		return;
-	}
-	if (FindSetPos (bitarr, 3) != 2) {
-		Destruct (bitarr);
-		printf ("find tests not passed (fsp 2 error)\n");
-		return;
-	}
-	if (FindUnsetPos (bitarr, 2) != -1) {
-		Destruct (bitarr);
-		printf ("find tests not passed (fup 2 error)\n");
-		return;
-	}
+	// if (FindLastUnset (bitarr) != -1) {
+	// 	Destruct (bitarr);
+	// 	printf ("find tests not passed (flu 2 error)\n");
+	// 	return;
+	// }
+	// if (FindSetPos (bitarr, 3) != 2) {
+	// 	Destruct (bitarr);
+	// 	printf ("find tests not passed (fsp 2 error)\n");
+	// 	return;
+	// }
+	// if (FindUnsetPos (bitarr, 2) != -1) {
+	// 	Destruct (bitarr);
+	// 	printf ("find tests not passed (fup 2 error)\n");
+	// 	return;
+	// }
 
 
-	if (FindSetPos (bitarr, -1) >= 0) {
-		Destruct (bitarr);
-		printf ("find tests not passed (fsp 3 error)\n");
-		return;
-	}
-	if (FindUnsetPos (bitarr, -5) >= 0) {
-		Destruct (bitarr);
-		printf ("find tests not passed (fup 3 error)\n");
-		return;
-	}
+	// if (FindSetPos (bitarr, -1) >= 0) {
+	// 	Destruct (bitarr);
+	// 	printf ("find tests not passed (fsp 3 error)\n");
+	// 	return;
+	// }
+	// if (FindUnsetPos (bitarr, -5) >= 0) {
+	// 	Destruct (bitarr);
+	// 	printf ("find tests not passed (fup 3 error)\n");
+	// 	return;
+	// }
 
 	Destruct (bitarr);
 
